@@ -1,6 +1,14 @@
-import { systemState } from "./testing/object_example.ts";
-import { update_screen, read_input } from "./src/spelunk_io.ts";
-import { compile_path } from "./src/compilers.ts";
+import {
+  update_screen,
+  read_input,
+  copyToClipboard,
+  can_run,
+} from "./src/spelunk_io.ts";
+import {
+  compile_path,
+  compile_tree,
+  compile_tree_types,
+} from "./src/text_compilers.ts";
 
 export type Tree = {
   object: any;
@@ -69,6 +77,9 @@ function handle_path(tree: Tree, input: string) {
     "Moria... You fear to go into those mines.\n\
       The dwarves delved too greedily and too deep.\n\
       You know what they awoke in the darkness of Khazad-dum... shadow and flame.";
+  if (input[0] === "\\") {
+    input = input.slice(1);
+  }
 
   if (tree === null) {
     throw new Error(bottom_out_err);
@@ -88,7 +99,8 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
   let err: string | null = null;
 
   while (true) {
-    info.lines = update_screen(tree, info.lines, err);
+    const tree_string: string = compile_tree(tree, err);
+    info.lines = update_screen(tree_string, info.lines);
 
     try {
       const input: string = await read_input();
@@ -99,6 +111,24 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
 
         case "-":
           return info;
+
+        case "p": {
+          const path: string = compile_path(tree.path);
+          // if (!(await can_run())) {
+          //   info.lines = info.lines + 1;
+          // }
+          copyToClipboard(path);
+          break;
+        }
+
+        case "t": {
+          const text: string = compile_tree_types(tree);
+          // if (!(await can_run())) {
+          //   info.lines = info.lines + 1;
+          // }
+          copyToClipboard(text);
+          break;
+        }
 
         default: {
           const new_tree: Tree = structuredClone(tree);
@@ -122,10 +152,8 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
 export default async function spelunk(object: any) {
   console.log("Welcome... Dear customer");
   console.log(
-    "Type the key or element of where you want to go,\n  - to go up the tree and q to quit\n",
+    "Type the key or element of where you want to go,\n  - to go up the tree and q to quit",
   );
   const tree: Tree = { object: object, path: ["object"] };
   await crawl(tree, { quit: false, lines: 0 }, "");
 }
-
-await spelunk(systemState);

@@ -1,6 +1,3 @@
-import { Tree } from "../main.ts";
-import { compile_path, compile_err } from "./compilers.ts";
-
 export async function read_input() {
   let input: string;
   while (true) {
@@ -28,20 +25,53 @@ function clearOwnOutput(lines: number) {
   }
 }
 
-export function update_screen(tree: Tree, lines: number, err: string | null) {
+export function update_screen(text: string, lines: number) {
   clearOwnOutput(lines);
-
-  const path: string = compile_path(tree.path);
-  const tree_hierarchy: string = Deno.inspect(tree.object, {
-    depth: 2,
-    colors: true,
-  });
-  err = compile_err(err);
-
-  const text: string =
-    path + "\n\n Object: " + tree_hierarchy + "\n" + err + "\n> ";
   lines = text.split("\n").length;
   Deno.stdout.writeSync(encoder.encode(text));
-
   return lines;
+}
+
+export async function copyToClipboard(text: string) {
+  let commandArgs: { cmd: string; args?: string[] };
+
+  switch (Deno.build.os) {
+    case "darwin":
+      commandArgs = { cmd: "pbcopy" };
+      break;
+    case "windows":
+      commandArgs = {
+        cmd: "powershell.exe",
+        args: ["-Command", "Set-Clipboard", "-Value", text],
+      };
+      break;
+    case "linux":
+      commandArgs = { cmd: "wl-copy" };
+      break;
+    default:
+      throw new Error(`Unsupported OS: ${Deno.build.os}`);
+  }
+
+  const command = new Deno.Command(commandArgs.cmd, {
+    args: commandArgs.args || [],
+    stdin: "piped",
+  });
+
+  const child = command.spawn();
+
+  if (Deno.build.os !== "windows") {
+    const writer = child.stdin.getWriter();
+    await writer.write(new TextEncoder().encode(text));
+    await writer.close();
+  }
+
+  const status = await child.status;
+  if (!status.success) {
+    throw new Error(`Clipboard command failed on ${Deno.build.os}`);
+  }
+}
+
+export async function can_run() {
+  const status = await Deno.permissions.query({ name: "run" });
+  return status.state === "granted";
 }
