@@ -33,8 +33,9 @@ For arrays: Typing the number of the element you want will go to that element.
 Alternatively, you can type \*(#) to indicate looping over all elements.  
 (#) is an optional element number and will dive into that element if present, otherwise spelunk will default into element 0.
 
-## Escaping
-As q, -, p, t, #, and \ are special characters if your key is only one of those characters they must be escaped with \
+> [!important]
+> As q, -, p, t, and # are special characters if your key is only one of those characters they must be escaped with \
+> Additionally, any key beginning with a \ will need to be escaped with \
 
 # To-dos
 ## Features

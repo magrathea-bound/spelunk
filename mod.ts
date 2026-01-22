@@ -78,7 +78,9 @@ function handle_path(tree: Tree, input: string) {
     "Moria... You fear to go into those mines.\n\
       The dwarves delved too greedily and too deep.\n\
       You know what they awoke in the darkness of Khazad-dum... shadow and flame.";
-  if (input[0] === "\\") {
+  if (input === "\\\\") {
+    input = input.slice(1);
+  } else if (input[0] === "\\") {
     input = input.slice(1);
   }
 
