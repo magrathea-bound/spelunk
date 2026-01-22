@@ -7,7 +7,7 @@ import {
 import {
   compile_path,
   compile_tree,
-  compile_tree_types,
+  compile_type_tree,
 } from "./src/text_compilers.ts";
 
 export type Tree = {
@@ -18,6 +18,7 @@ export type Tree = {
 type RecursionGlobals = {
   quit: boolean;
   lines: number;
+  object_layers: number;
 };
 
 function handle_object(tree: Tree, input: string) {
@@ -92,6 +93,8 @@ function handle_path(tree: Tree, input: string) {
   }
 }
 
+function inspect_layers(input: string) {}
+
 async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
   if (!(info.lines === 0)) {
     handle_path(tree, input);
@@ -99,11 +102,16 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
   let err: string | null = null;
 
   while (true) {
-    const tree_string: string = compile_tree(tree, err);
+    const tree_string: string = compile_tree(tree, err, info.object_layers);
     info.lines = update_screen(tree_string, info.lines);
 
     try {
       const input: string = await read_input();
+      if (/^#\d+$/.test(input)) {
+        const layers: string = input.slice(1);
+        info.object_layers = Number(layers);
+        continue;
+      }
       switch (input) {
         case "q":
           info.quit = true;
@@ -112,8 +120,11 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
         case "-":
           return info;
 
+        case "#":
+          return info;
+
         case "p": {
-          const path: string = compile_path(tree.path);
+          const path: string = compile_path(tree.path, true);
           // if (!(await can_run())) {
           //   info.lines = info.lines + 1;
           // }
@@ -122,7 +133,7 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
         }
 
         case "t": {
-          const text: string = compile_tree_types(tree);
+          const text: string = compile_type_tree(tree);
           // if (!(await can_run())) {
           //   info.lines = info.lines + 1;
           // }
@@ -150,10 +161,9 @@ async function crawl(tree: Tree, info: RecursionGlobals, input: string) {
 }
 
 export default async function spelunk(object: any) {
-  console.log("Welcome... Dear customer");
   console.log(
     "Type the key or element of where you want to go,\n  - to go up the tree and q to quit",
   );
   const tree: Tree = { object: object, path: ["object"] };
-  await crawl(tree, { quit: false, lines: 0 }, "");
+  await crawl(tree, { quit: false, lines: 0, object_layers: 2 }, "");
 }

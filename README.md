@@ -3,26 +3,29 @@ Spelunk is a terminal based object crawler designed to provide an interactive wa
 If you're like me and are a print programmer/debugger then spelunk may be of interest.
 
 I decided to hammer spelunk out after getting fed up with complex object responses.
-I'm sure VS Code ***Spits*** and others likely have better tools but I use nvim (BTW).
-Also I was slightly bored and needed a project...
+I'm sure VS Code ***Spits*** and others likely have better tools but I use nvim (..BTW).
+Also I was slightly bored and thought it would be a fun project.
 
-Spelunk also provides the ability to generate a ts type object to mirror your object so OCD people don't have to lose sleep over "foo : any".
+Spelunk also provides the ability to generate a ts type to mirror your object so OCD people don't have to lose sleep over "foo : any".
 
 # How To
 ## Basic implementation
 ```
 import spelunk from 'spelunk/mod.ts'
 
-spelunk(object);
+await spelunk(object);
 ```
 Once run, spelunk will open an interactive prompt within the terminal to explore the object passed into it.
 
 ## Input Options
 - q: Quit the program
 - -: return to previous level
-- p: copy the path to your current level 
-- t: creates a ts type of the current structure and copies it to the clipboard.
-This type is only based on available information, types not in the object passed will need to be added.
+- p: copies the path of your current level to your system clipboard
+- #: When followed by a number, updates the layers of the object to show i.e. #3 will show keys/values 3 layers down while #1 will show only the first layer keys/values.
+- t: creates a ts type of the current structure and copies it to the system clipboard.
+
+> [!Note]
+> This type is only based on the object passed to spelunk, types not in the object will need to be added.
 
 For objects: Type in the desired key to dive to that level.
 
@@ -31,12 +34,11 @@ Alternatively, you can type \*(#) to indicate looping over all elements.
 (#) is an optional element number and will dive into that element if present, otherwise spelunk will default into element 0.
 
 ## Escaping
-As q, -, p, t, and \ are special characters if your key is only one of those characters they must be escaped with \
+As q, -, p, t, #, and \ are special characters if your key is only one of those characters they must be escaped with \
 
 # To-dos
 ## Features
 - Tab completion
-- Fix type tree format to not new line everything
 - Add help menu
 - Allow for dot notation in the pathing
 - Reimplement showing the type tree
