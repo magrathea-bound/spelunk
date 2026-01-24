@@ -1,4 +1,11 @@
 {
+  "name": "@magrathea/spelunk",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "publish": {
+    "exclude": ["testing/", ".git/"]
+  },
+  "license": "MIT",
   "tasks": {
     "dev": "deno run --watch main.ts"
   },
