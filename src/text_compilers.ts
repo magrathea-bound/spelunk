@@ -137,11 +137,11 @@ function construct_tree(tree: Node, level: number, array: boolean) {
   }
 
   if (tree.array !== null) {
-    str = str + construct_tree(tree.array, level + 1, true) + "[],";
+    str = str + construct_tree(tree.array, level, true) + "[];";
   } else if (array) {
     str = str.slice(0, -3);
   } else {
-    str = str.slice(0, -3) + ",";
+    str = str.slice(0, -3) + ";";
   }
 
   if (array) {
